@@ -40,7 +40,7 @@ def loss_along_vector(model,dataset,index,vector):
     return loss
 
 #compare model1&model2's loss surface over a plane spanned by two given directions around an image
-def diff_plot_loss(model1,model2,dataset,num_data=10,num_direction = 4,scope = 0.6,interval = 0.02,savename='./image/default.png'):
+def diff_plot_loss(model1,model2,dataset,num_data=10,num_direction = 4,scope = 0.6,interval = 0.02,desc1='Model 1',desc2='Model 2',savename='./image/default.png'):
     fig = plt.figure(figsize=(10*num_direction,10*2*num_data))
     X = np.arange(-scope, scope, interval)
     Y = np.arange(-scope, scope, interval)
@@ -54,7 +54,7 @@ def diff_plot_loss(model1,model2,dataset,num_data=10,num_direction = 4,scope = 0
             rand_direction = torch.randn_like(direction1).sign()
             #plot ax1
             ax1 = fig.add_subplot(2*num_data,num_direction,2*num_direction*i+j+1,projection='3d')
-            ax1.set_title('Model 1,Image index:{}, Random axis number:{}'.format(index,j+1))
+            ax1.set_title('{}, Image index:{}, Random axis number:{}'.format(desc1,index,j+1))
             for r in range(Z.shape[0]):
                 for c in range(Z.shape[1]):
                     x = X[r,c]
@@ -65,7 +65,7 @@ def diff_plot_loss(model1,model2,dataset,num_data=10,num_direction = 4,scope = 0
 
             #plot ax2
             ax2 = fig.add_subplot(2*num_data,num_direction,2*num_direction*i+j+1+num_direction,projection='3d')
-            ax2.set_title('Model 2,Image index:{}, Random axis number:{}'.format(index,j+1))
+            ax2.set_title('{}, Image index:{}, Random axis number:{}'.format(desc2,index,j+1))
 
             for r in range(Z.shape[0]):
                 for c in range(Z.shape[1]):
@@ -74,5 +74,5 @@ def diff_plot_loss(model1,model2,dataset,num_data=10,num_direction = 4,scope = 0
                     z = loss_along_vector(model2,dataset,index,x*direction2+y*rand_direction)
                     Z[r,c] =z
             ax2.plot_surface(X, Y, Z, cmap=cm.coolwarm)
-    fig.savefig(savename,facecolar=(1,1,1))
+    fig.savefig(savename,facecolor=(1,1,1))
 

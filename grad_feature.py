@@ -1,19 +1,10 @@
-from model import ResNet,VGG19
+
 import torch
 import torch.nn as nn
-from torchvision import datasets,transforms 
-import torch.optim as optim
-from torch.utils.data import DataLoader
-import torch.linalg as LA
+from torchvision import transforms 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
 device = 0
-
-
 
 #compute gradient 
 def compute_grad(model,dataset,index):
@@ -28,7 +19,7 @@ def compute_grad(model,dataset,index):
 
 
 #compare the grad images of different models, randomly chosing num_data images in dataset
-def diff_plot_grad(model1,model2,dataset,num_data=10,description1='Model1',description2='Model2',savename='./image/default.png'):
+def diff_plot_grad(model1,model2,dataset,num_data=10,desc1='Model1',desc2='Model2',savename='./image/default.png'):
     model1.eval()
     model2.eval()
     fig = plt.figure(figsize=(10*4,10*3*num_data))  
@@ -45,11 +36,11 @@ def diff_plot_grad(model1,model2,dataset,num_data=10,description1='Model1',descr
                 ax1.imshow(image)
                 ax2 = fig.add_subplot(3*num_data,4,12*i+j+5)
                 ax2.axis('off')
-                ax2.set_title('Gradient of {}, Image index:{} '.format(description1,index))
+                ax2.set_title('Gradient of {}, Image index:{} '.format(desc1,index))
 
                 ax2.imshow(grad1)
                 ax3 = fig.add_subplot(3*num_data,4,12*i+j+9)
-                ax3.set_title('Gradient of {}, Image index:{} '.format(description2,index))
+                ax3.set_title('Gradient of {}, Image index:{} '.format(desc2,index))
                 ax3.axis('off')
                 ax3.imshow(grad2)
             else:
@@ -59,10 +50,10 @@ def diff_plot_grad(model1,model2,dataset,num_data=10,description1='Model1',descr
                 ax1.imshow(image[:,:,j-1])
                 ax2 = fig.add_subplot(3*num_data,4,12*i+j+5)
                 ax2.axis('off')
-                ax2.set_title('Gradient of {}, Image index:{}, Channel:{} '.format(description1,index,j-1))
+                ax2.set_title('Gradient of {}, Image index:{}, Channel:{} '.format(desc1,index,j-1))
                 ax2.imshow(grad1[:,:,j-1])
                 ax3 = fig.add_subplot(3*num_data,4,12*i+j+9)
                 ax3.axis('off')
-                ax3.set_title('Gradient of {}, Image index:{}, Channel:{} '.format(description1,index,j-1))
+                ax3.set_title('Gradient of {}, Image index:{}, Channel:{} '.format(desc1,index,j-1))
                 ax3.imshow(grad2[:,:,j-1]) 
     fig.savefig(savename,facecolor = (1,1,1))

@@ -1,8 +1,6 @@
-from model import ResNet,VGG19
 import torch
 import torch.nn as nn
 from torchvision import datasets,transforms 
-import torch.optim as optim
 from torch.utils.data import DataLoader
 device = 0
 
@@ -23,17 +21,11 @@ cifar_test = datasets.CIFAR10('./data',train=False,download=True,transform=trans
         ]))
 test_loader = DataLoader(cifar_test,batch_size=512,shuffle = False,num_workers=4)
 train_loader = DataLoader(cifar_train,batch_size=512,shuffle = True,num_workers=4)
-model  = nn.DataParallel(ResNet.resnet20(10)).to(device)
-optimizer = optim.SGD(model.parameters(),lr = 0.1,momentum=0.9,weight_decay=1e-4)
-scheduler = optim.lr_scheduler.MultiStepLR(optimizer,milestones=[100, 150],last_epoch=-1)
 
 
 #pgd and fgsm attacks
-def pgd(model,data,target,epsilon = 8/255,alpha = 2* 8/255/20,step = 20,randomize = False):
-    if randomize:
-        delta = torch.rand_like(data,requires_grad = True)*epsilon
-    else:
-        delta = torch.zeros_like(data,requires_grad = True)
+def pgd(model,data,target,epsilon = 8/255,alpha = 2* 8/255/20,step = 20):
+    delta = torch.zeros_like(data,requires_grad = True)
     for step in range(step):
         loss = nn.CrossEntropyLoss()(model(data+delta),target)
         loss.backward()
@@ -47,9 +39,8 @@ def fgsm(model, data, target, epsilon=8/255,alpha=None,step = None, randomize = 
     loss.backward()
     return epsilon * delta.grad.detach().sign()
 
-
 #standard/adversarial train/evaluate
-def epoch(model,loader,attack=None,optimizer = None,epsilon = 8/255,alpha = 2* 8/255/20,step = 20,randomize = False):     
+def epoch(model,loader,attack=None,optimizer = None,epsilon = 8/255,alpha = 2* 8/255/20,step = 20):     
     model.eval()
     if optimizer:
         model.train()
@@ -58,7 +49,7 @@ def epoch(model,loader,attack=None,optimizer = None,epsilon = 8/255,alpha = 2* 8
     for index,(data,target) in enumerate(loader):
         data,target = data.to(device),target.to(device)
         if attack:
-            pred = model(data+attack(model,data,target,epsilon,alpha,step,randomize))
+            pred = model(data+attack(model,data,target,epsilon,alpha,step))
         else:
             pred = model(data)
         num+=pred.argmax(1).eq(target).sum().item()            
@@ -71,9 +62,7 @@ def epoch(model,loader,attack=None,optimizer = None,epsilon = 8/255,alpha = 2* 8
     return num/len(loader.dataset), total_loss/len(loader.dataset)
 
 
-
-
-def standard_train(model,opt,scheduler,description:str,epoch=epoch):
+def standard_train(model,opt,scheduler,description:str):
     baseline = 0.9
     for i in range(250):
         train_accuracy, train_loss = epoch(model,train_loader,optimizer=opt)
@@ -86,13 +75,12 @@ def standard_train(model,opt,scheduler,description:str,epoch=epoch):
         print("epoch:{}, train accuracy:{:.4}, train loss:{:.4}, test accuracy:{:.4} ".format(i+1,train_accuracy,train_loss,test_accuracy))
 
 
-
-def pgd_train(model,opt,scheduler,description:str,epoch= epoch,epsilon = 8/255,alpha = 2* 8/255/20,step = 20,randomize = False):
+def pgd_train(model,opt,scheduler,description:str,epsilon = 8/255,alpha = 2* 8/255/20,step = 20):
     baseline = 0.6
     for i in range(120):
-        train_accuracy, train_loss = epoch(model,train_loader,pgd,optimizer=opt,epsilon = 8/255,alpha = 2* 8/255/20,step = 20,randomize = False)
+        train_accuracy, train_loss = epoch(model,train_loader,pgd,opt,epsilon,alpha,step)
         test_accuracy,_ = epoch(model,test_loader)
-        test_adv_accuracy,_ = epoch(model,test_loader,pgd,epsilon = 8/255,alpha = 2* 8/255/20,step = 20,randomize = False)
+        test_adv_accuracy,_ = epoch(model,test_loader,pgd,epsilon,alpha,step = 20)
         scheduler.step()
         if i+1>=30 and test_adv_accuracy>baseline:
             baseline +=0.02

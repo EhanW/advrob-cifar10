@@ -1,28 +1,38 @@
-from model import ResNet,VGG19
+from model import ResNet
+import train, grad_feature,loss_feature
 import torch
 import torch.nn as nn
-from torchvision import datasets,transforms 
 import torch.optim as optim
-from torch.utils.data import DataLoader
-import torch.linalg as LA
-import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 device = 0
 
+#train a resnet20 model
+model  = nn.DataParallel(ResNet.resnet20(10)).to(device)
+optimizer = optim.SGD(model.parameters(),lr = 0.1,momentum=0.9,weight_decay=1e-4)
+scheduler = optim.lr_scheduler.MultiStepLR(optimizer,milestones=[100, 150],last_epoch=-1)
+standard_train = train.standard_train
+pgd_train = train.pgd_train
 
 #load pretrained model
-def resnet20():
-    resnet20 = nn.DataParallel(ResNet.resnet20(10)).to(device)
-    resnet20.module.load_state_dict(torch.load('./pretrained/resnet20.pth'))
-    return resnet20
+resnet = nn.DataParallel(ResNet.resnet20(10)).to(device)
+resnet.module.load_state_dict(torch.load('./pretrained/resnet20.pth'))
+resnet_robust = nn.DataParallel(ResNet.resnet20(10)).to(device)
+resnet_robust.module.load_state_dict(torch.load('./pretrained/resnet20_pgd.pth'))
 
-def resnet20_robust():
-    resnet20_robust = nn.DataParallel(ResNet.resnet20(10)).to(device)
-    resnet20_robust.module.load_state_dict(torch.load('./pretrained/resnet20_pgd.pth'))
-    return resnet20_robust
 
+#compare the grad features
+test_dataset = train.cifar_test
+train_dataset = train.cifar_train
+diff_plot_grad = grad_feature.diff_plot_grad
+diff_plot_loss = loss_feature.diff_plot_loss
+
+def main():
+    print('hello world!')
+    #standard_train(model,optimizer,scheduler,'model')
+    #pgd_train(model,optimizer,scheduler,'model_pgd')
+    #diff_plot_grad(resnet,resnet_robust,test_dataset,desc1='resnet',desc2='resnet_robust',savename='./image/grad_default.png')
+    #diff_plot_loss(resnet,resnet_robust,test_dataset,desc1='resnet',desc2='resnet_robust',savename='./image/loss_default.png')
+
+
+if __name__=='__main__':
+    main()
