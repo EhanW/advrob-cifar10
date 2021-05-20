@@ -56,4 +56,4 @@ def diff_plot_grad(model1,model2,dataset,num_data=10,desc1='Model1',desc2='Model
                 ax3.axis('off')
                 ax3.set_title('Gradient of {}, Image index:{}, Channel:{} '.format(desc1,index,j-1))
                 ax3.imshow(grad2[:,:,j-1]) 
-    fig.savefig(savename,facecolor = (1,1,1))
+    fig.savefig(savename,facecolor = (1,1,1),bbinches='tight')

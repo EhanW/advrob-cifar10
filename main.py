@@ -27,7 +27,8 @@ diff_plot_grad = grad_feature.diff_plot_grad
 diff_plot_loss = loss_feature.diff_plot_loss
 
 def main():
-    print('hello world!')
+    print('delete the hash to execute the following command')
+
     #standard_train(model,optimizer,scheduler,'model')
     #pgd_train(model,optimizer,scheduler,'model_pgd')
     #diff_plot_grad(resnet,resnet_robust,test_dataset,desc1='resnet',desc2='resnet_robust',savename='./image/grad_default.png')

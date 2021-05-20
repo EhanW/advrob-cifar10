@@ -74,5 +74,5 @@ def diff_plot_loss(model1,model2,dataset,num_data=10,num_direction = 4,scope = 0
                     z = loss_along_vector(model2,dataset,index,x*direction2+y*rand_direction)
                     Z[r,c] =z
             ax2.plot_surface(X, Y, Z, cmap=cm.coolwarm)
-    fig.savefig(savename,facecolor=(1,1,1))
+    fig.savefig(savename,facecolor=(1,1,1),bbinches = 'tight')
 
