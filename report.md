@@ -107,6 +107,18 @@
 * 第三行:resnet20关于图片的导数及其各通道
 * 测试样本随机来源于测试集标号4670-4684,7900-7915,9900-9915
 
-注意到经过对抗训练的模型的导数图像具有明显的类似原图的特征
+注意到经过对抗训练的模型的导数图像更具有类似原图的特征
 
-![comparison of grad images](image/grad_default.png)
+![comparison of grad](image/grad_default.png)
+
+### 关于损失函数的可视化
+
+* 每幅图中,纵轴为损失函数值,水平面由图像的sign(梯度)方向与另一随机方向生成
+* 每一行中不同的列对应不同的随机方向
+* 每两行中
+  * 第一行:resnet20
+  * 第二行:resnet20_robust
+
+确实可以看到经过对抗训练的模型的损失函数相对更加光滑平整,某种程度上更接近于线性
+
+![comparison of loss surface](image/loss_default.png)
