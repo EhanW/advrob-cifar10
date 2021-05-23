@@ -121,4 +121,6 @@
 
 确实可以看到经过对抗训练的模型的损失函数相对更加光滑平整,某种程度上更接近于线性
 
+![comparison in small scope](image/(3-3-0.1-0.001-1.png)
+
 ![comparison of loss surface](image/loss_default.png)
